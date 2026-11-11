@@ -16,6 +16,7 @@ public class QwertyMidiBridge {
 
     private Synthesizer synthesizer;
     private MidiChannel channel;
+    private MidiChannel dch;
 
     public QwertyMidiBridge() throws Exception {
         initializeKeyMap();
@@ -29,7 +30,8 @@ public class QwertyMidiBridge {
             throw new IllegalStateException("No MIDI channel is available.");
         }
         channel = channels[0];
-        channel.programChange(40);
+        dch= channels[9];
+        channel.programChange(105);
         JFrame frame = new JFrame("QWERTY MIDI Keyboard");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -156,5 +158,74 @@ public class QwertyMidiBridge {
                 e.printStackTrace();
             }
         });
+        rhythm a= new rhythm();
+        //ac bass drum=35 ac snare=38 hi/high mid/low mid/low tom/lft/hft=50/48/47/45/43/41  cymbal=49 closed/open hi hat= 42/46
+        Thread d= new Thread(() ->{
+            int du1[]= {35,35,38,42,38,42,38,42 ,38,35,38};
+             int tom=48;
+            int du2[]={35,35,38, 35,38,35,38 ,35,35, tom,38,tom,tom,49, 38, 42,38,42,38,42, 38,35,38};
+            int h=du1.length*3;
+            int h1=du2.length;
+           
+            a.ch.programChange(33);
+            int bass[]={38,34,38,43};
+            try{
+            for( ; ;){
+            for(int i=0;i<h  ;i++){
+                a.gch.noteOn(du1[i%du1.length],100);
+                a.ch.noteOn(bass[i%bass.length],0);
+                if(i%du1.length!=8){
+                Thread.sleep((i%du1.length<=2 || i%du1.length==7)?300:150);}
+                else 
+                Thread.sleep(300);
+                a.ch.noteOff(bass[i%bass.length]);
+                a.gch.noteOff(du1[i%du1.length]);
+            }
+            for(int i=0;i<h1 ;i++){
+                a.gch.noteOn(du2[i%du2.length],100);
+                a.ch.noteOn(bass[i%bass.length],0);
+                if(i%du2.length==13)
+                Thread.sleep(450);
+                else if(i%du2.length==14)
+                Thread.sleep(300);
+                else if(i%du2.length!=8 || i%du2.length!=7)
+                Thread.sleep((i%du2.length<3)?300:150);               
+                else
+                Thread.sleep(75);
+                 a.ch.noteOff(bass[i%bass.length]);
+                a.gch.noteOff(du2[i%du2.length]);
+            }}
+        }catch(InterruptedException e){
+              System.out.println("Error");
+            }
+        });
+        d.start();
+    
+    }
+       
+        
+        
+    }
+
+class rhythm{
+    private Synthesizer synth;
+    public MidiChannel gch;
+    public MidiChannel ch;
+    public rhythm(){
+        try{
+            this.synth= MidiSystem.getSynthesizer();
+            this.synth.open();
+            MidiChannel[] ac= this.synth.getChannels();
+            this.gch= ac[9];
+            this.ch=ac[1];
+            
+        }catch(Exception e){
+            System.out.println("Error: "+e.getMessage());
+        }
+    }
+    public void shutdown(){
+        if(this.synth.isOpen() && this.synth!=null){
+            this.synth.close();
+        }
     }
 }
