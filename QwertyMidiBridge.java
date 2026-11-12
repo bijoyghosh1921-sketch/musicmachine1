@@ -158,54 +158,62 @@ public class QwertyMidiBridge {
                 e.printStackTrace();
             }
         });
+        int oct=-12;
+        int bass[]={40-oct, 40-oct, 40-oct, 40-oct, 40-oct, 40-oct, 40-oct,40-oct,40-oct, 43-oct, 36-oct, 38-oct, 40-oct, 40-oct,40-oct,40-oct,41-oct, 41-oct, 41-oct,  41-oct,40-oct, 40-oct, 40-oct, 40-oct,38-oct, 38-oct, 38-oct,40-oct, 38-oct, 38-oct, 43-oct,43-oct};
+            
         rhythm a= new rhythm();
         //ac bass drum=35 ac snare=38 hi/high mid/low mid/low tom/lft/hft=50/48/47/45/43/41  cymbal=49 closed/open hi hat= 42/46
         Thread d= new Thread(() ->{
             int du1[]= {35,35,38,42,38,42,38,42 ,38,35,38};
-             int tom=48;
-            int du2[]={35,35,38, 35,38,35,38 ,35,35, tom,38,tom,tom,49, 38, 42,38,42,38,42, 38,35,38};
-            int h=du1.length*3;
-            int h1=du2.length;
            
-            a.ch.programChange(33);
-            int bass[]={38,34,38,43};
+             int tom=48;
+            int du2[]={35,35,38, 35,38,35,38 ,35,35, tom,38,tom,tom,49, 38, 42,38,42,38,42, 38, 35,38};
+            int h=du1.length*3;
+            int h1=du2.length;//
+           
+            a.ch.programChange(0);
             try{
             for( ; ;){
             for(int i=0;i<h  ;i++){
                 a.gch.noteOn(du1[i%du1.length],100);
-                a.ch.noteOn(bass[i%bass.length],0);
+                
                 if(i%du1.length!=8){
                 Thread.sleep((i%du1.length<=2 || i%du1.length==7)?300:150);}
                 else 
                 Thread.sleep(300);
-                a.ch.noteOff(bass[i%bass.length]);
+                
                 a.gch.noteOff(du1[i%du1.length]);
             }
             for(int i=0;i<h1 ;i++){
                 a.gch.noteOn(du2[i%du2.length],100);
-                a.ch.noteOn(bass[i%bass.length],0);
+                
                 if(i%du2.length==13)
-                Thread.sleep(450);
-                else if(i%du2.length==14)
+                Thread.sleep(600);
+                else if(i%du2.length==14 || i%du2.length==19 || i%du2.length==20)
                 Thread.sleep(300);
                 else if(i%du2.length!=8 || i%du2.length!=7)
                 Thread.sleep((i%du2.length<3)?300:150);               
                 else
                 Thread.sleep(75);
-                 a.ch.noteOff(bass[i%bass.length]);
+                 
                 a.gch.noteOff(du2[i%du2.length]);
             }}
         }catch(InterruptedException e){
               System.out.println("Error");
             }
         });
-        d.start();
-    
-    }
-       
+        Thread b= new Thread(() ->{try{
+        for(int i=0; ;i++){
+        a.ch.noteOn(bass[i%bass.length],100);
+        Thread.sleep(300);
+        a.ch.noteOff(bass[i%bass.length]);           
+        
+        }}catch(Exception e){System.out.println("Error");}});
+       b.start();
+       d.start();
         
         
-    }
+    }}
 
 class rhythm{
     private Synthesizer synth;
