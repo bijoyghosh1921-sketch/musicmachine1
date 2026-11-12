@@ -165,12 +165,12 @@ public class QwertyMidiBridge {
         //ac bass drum=35 ac snare=38 hi/high mid/low mid/low tom/lft/hft=50/48/47/45/43/41  cymbal=49 closed/open hi hat= 42/46
         Thread d= new Thread(() ->{
             int du1[]= {35,35,38,42,38,42,38,42 ,38,35,38};
-           
-             int tom=48;
+            int tom=48;
             int du2[]={35,35,38, 35,38,35,38 ,35,35, tom,38,tom,tom,49, 38, 42,38,42,38,42, 38, 35,38};
-            int h=du1.length*3;
-            int h1=du2.length;//
-           
+            int du3[]={35,35,38,42,38,42,38,42 ,38,35,38, /*10*/   /*to be continued du4*/35,35,38, 35,38,35,38, 35,35, 38,35,38,38,    35,35,38, 35,38,35,38 ,35,35, tom,38,tom,tom,49};
+            int h=du1.length*3;// 11-17 300, 12-13 150,
+            int h1=du2.length;
+            int h2=du3.length;
             a.ch.programChange(0);
             try{
             for( ; ;){
@@ -197,8 +197,34 @@ public class QwertyMidiBridge {
                 Thread.sleep(75);
                  
                 a.gch.noteOff(du2[i%du2.length]);
-            }}
-        }catch(InterruptedException e){
+            }
+            for(int i=0; i<h2; i++){
+             a.gch.noteOn(du3[i%du3.length],100);
+             
+             if(i%du3.length!=8 && i%du3.length<=10){
+                Thread.sleep((i%du3.length<=2 || i%du3.length==7)?300:150);}
+                else if(i%du3.length>10 && i%du3.length<=13){
+                Thread.sleep(300);                
+                }else if(i%du3.length>13 && i%du3.length<=17 ){
+                Thread.sleep(150);
+                }else if(i%du3.length>=18 && i%du3.length<=19){
+                Thread.sleep(75);
+                }else if(i%du3.length>19 && i%du3.length<=23){
+                Thread.sleep(150);
+                }else if(i%du3.length>=24 && i%du3.length<=26){
+                Thread.sleep(300);
+                }else if(i%du3.length>=27 && i%du3.length<=30){
+                    Thread.sleep(150);
+                }else if(i%du3.length>=31 && i%du3.length<=32){
+                    Thread.sleep(75);
+                }else 
+                Thread.sleep(150);
+
+             
+            
+            a.gch.noteOff(du3[i%du3.length]);
+        }
+        }}catch(InterruptedException e){
               System.out.println("Error");
             }
         });
